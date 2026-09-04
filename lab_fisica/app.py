@@ -1,60 +1,75 @@
 import textwrap
 import streamlit as st
 
-#IMPORTACION DE LOS MODULOS
+# ==========================================
+# IMPORTACIÓN DE LOS MÓDULOS DEL PROYECTO
+# ==========================================
+
 import modulo_vectores_2d
 
-def _md_html(html: str):
-    """Renderiza HTML/CSS con st.markdown de forma segura.
 
-    Streamlit (y el parser Markdown que usa por debajo) interpreta cualquier
-    línea que empiece con 4 o más espacios como un BLOQUE DE CÓDIGO en vez de
-    HTML. Como en este archivo las cadenas HTML/CSS están sangradas para
-    respetar la identación de Python, hay que "desindentarlas" con
-    textwrap.dedent() antes de enviarlas, o de lo contrario se muestran como
-    texto plano en pantalla en lugar de aplicarse como estilo.
+# ==========================================
+# FUNCIÓN AUXILIAR PARA APLICAR ESTILOS VISUALES
+# ==========================================
+def _md_html(html: str):
+    """
+    # Esta función soluciona un problema de Streamlit:
+    # Cuando escribimos código de diseño (HTML/CSS) dentro de Python, si tiene espacios al inicio,
+    # Streamlit se confunde y lo muestra como texto feo en lugar de aplicar el diseño.
+    'textwrap.dedent' quita esos espacios extra para que el diseño neón se aplique perfectamente.
     """
     st.markdown(textwrap.dedent(html).strip(), unsafe_allow_html=True)
 
 
-# 1. CONFIGURACIÓN GENERAL DE LA PÁGINA
-
+# ==========================================
+# 1. CONFIGURACIÓN GENERAL DE LA PÁGINA WEB
+# ==========================================
+# # Le decimos a la aplicación cómo debe mostrarse en la pestaña del navegador web.
 st.set_page_config(
-    page_title="Laboratorio Virtual de Física Mecánica",
-    page_icon="⚛️",
-    layout="wide",
-    initial_sidebar_state="expanded",
+    page_title="Laboratorio Virtual de Física Mecánica",  # # Nombre que sale en la pestaña del navegador
+    page_icon="⚛️",                                      # # Ícono que acompaña al título
+    layout="wide",                                        # # Hace que la página use todo el ancho de la pantalla (modo ancho)
+    initial_sidebar_state="expanded",                     # # La barra lateral izquierda aparecerá abierta por defecto
 )
 
 
+# ==========================================
 # 2. CSS PERSONALIZADO — TEMA OSCURO FUTURISTA / NEÓN
+# ==========================================
 def inject_custom_css():
-    """Inyecta el CSS personalizado para el tema oscuro futurista con
-    detalles en azul neón y cajas tipo glassmorphism."""
+    """
+    # Esta función inyecta las reglas de diseño visual (CSS) para transformar el aspecto predeterminado de Streamlit
+    # en una interfaz moderna de laboratorio: fondo oscuro, bordes neón brillantes y cajas de cristal (glassmorphism).
+    """
     css = """
         <style>
 
-        /* ---------- IMPORTAR TIPOGRAFÍA ---------- */
+        /* ---------- IMPORTAR TIPOGRAFÍA DESDE GOOGLE FONTS ---------- */
+        /* # Traemos dos fuentes tipográficas de aspecto futurista y técnico: Orbitron (para títulos) y Rajdhani (para texto) */
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
+        /* ---------- VARIABLES DE COLOR (PALETA DE COLORES) ---------- */
+        /* # Definimos los colores principales en un solo lugar para usarlos fácilmente en toda la app */
         :root {
-            --bg-primary: #0B0F19;
-            --bg-secondary: #10182B;
-            --neon-blue: #00F0FF;
-            --neon-blue-soft: rgba(0, 240, 255, 0.15);
-            --neon-blue-border: rgba(0, 240, 255, 0.35);
-            --text-primary: #E6F1FF;
-            --text-secondary: #8FA3C0;
+            --bg-primary: #0B0F19;         /* # Azul muy oscuro casi negro para el fondo principal */
+            --bg-secondary: #10182B;       /* # Azul oscuro para paneles secundarios */
+            --neon-blue: #00F0FF;          /* # Azul cian neón para resaltar elementos activos */
+            --neon-blue-soft: rgba(0, 240, 255, 0.15); /* # Azul neón suave e iluminado */
+            --neon-blue-border: rgba(0, 240, 255, 0.35); /* # Color brillante para bordes */
+            --text-primary: #E6F1FF;       /* # Blanco azulejo para que las letras se lean bien en fondo oscuro */
+            --text-secondary: #8FA3C0;     /* # Gris azulado para textos secundarios y notas pequeñas */
         }
 
-        /* ---------- FONDO GENERAL DE LA APP ---------- */
+        /* ---------- FONDO GENERAL DE LA APLICACIÓN ---------- */
+        /* # Crea un degradado circular en el fondo que da la sensación de una pantalla encendida de laboratorio */
         .stApp {
             background: radial-gradient(circle at 15% 0%, #101a30 0%, #0B0F19 45%, #05070c 100%);
             color: var(--text-primary);
             font-family: 'Rajdhani', sans-serif;
         }
 
-        /* ---------- TÍTULOS ---------- */
+        /* ---------- ESTILO DE LOS TÍTULOS ---------- */
+        /* # Le da a todos los títulos la letra 'Orbitron' con un resplandor azul neón tipo pantalla holográfica */
         h1, h2, h3 {
             font-family: 'Orbitron', sans-serif;
             color: var(--text-primary);
@@ -62,17 +77,20 @@ def inject_custom_css():
             letter-spacing: 1px;
         }
 
+        /* # El título principal H1 tiene un degradado de color que va de azul neón a morado */
         h1 {
             background: linear-gradient(90deg, #00F0FF, #7B61FF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
+        /* # Todos los párrafos, etiquetas y listas usarán la letra 'Rajdhani' */
         p, span, label, li, div {
             font-family: 'Rajdhani', sans-serif;
         }
 
-        /* ---------- SIDEBAR ---------- */
+        /* ---------- ESTILO DE LA BARRA LATERAL (SIDEBAR) ---------- */
+        /* # Diseña el panel izquierdo de navegación con bordes brillantes y sombras neón */
         section[data-testid="stSidebar"] {
             background: linear-gradient(180deg, #0D1220 0%, #080B14 100%);
             border-right: 1px solid var(--neon-blue-border);
@@ -85,7 +103,8 @@ def inject_custom_css():
             color: var(--neon-blue);
         }
 
-        /* ---------- CAJAS GLASSMORPHISM ---------- */
+        /* ---------- CAJAS CON EFECTO DE CRISTAL (GLASSMORPHISM) ---------- */
+        /* # Crea tarjetas semitransparentes que parecen paneles de vidrio con bordes de neón */
         .glass-card {
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(12px);
@@ -99,6 +118,7 @@ def inject_custom_css():
             transition: all 0.3s ease-in-out;
         }
 
+        /* # Cuando el usuario pasa el cursor sobre la tarjeta, esta brilla más y flota levemente */
         .glass-card:hover {
             border: 1px solid var(--neon-blue);
             box-shadow: 0 0 35px rgba(0, 240, 255, 0.25),
@@ -119,7 +139,8 @@ def inject_custom_css():
             font-size: 0.95rem;
         }
 
-        /* ---------- BOTONES ---------- */
+        /* ---------- BOTONES INTERACTIVOS ---------- */
+        /* # Personaliza los botones para que parezcan botones táctiles de una consola futurista */
         .stButton > button {
             background: linear-gradient(90deg, rgba(0,240,255,0.12), rgba(123,97,255,0.12));
             color: var(--neon-blue);
@@ -132,6 +153,7 @@ def inject_custom_css():
             transition: all 0.25s ease-in-out;
         }
 
+        /* # Efecto de brillo intenso al pasar el ratón sobre los botones */
         .stButton > button:hover {
             border: 1px solid var(--neon-blue);
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);
@@ -139,7 +161,8 @@ def inject_custom_css():
             transform: scale(1.02);
         }
 
-        /* ---------- RADIO / MENÚ DE NAVEGACIÓN (SIDEBAR) ---------- */
+        /* ---------- OPCIONES DE MENÚ DE NAVEGACIÓN ---------- */
+        /* # Le da forma de tarjeta seleccionable a las opciones del menú de la barra lateral */
         div[role="radiogroup"] > label {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(0, 240, 255, 0.15);
@@ -156,7 +179,7 @@ def inject_custom_css():
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
         }
 
-        /* ---------- TABS NATIVOS (por si se usan) ---------- */
+        /* ---------- PESTAÑAS (TABS) ---------- */
         button[data-baseweb="tab"] {
             font-family: 'Orbitron', sans-serif;
             color: var(--text-secondary);
@@ -172,7 +195,7 @@ def inject_custom_css():
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
         }
 
-        /* ---------- ALERTAS / st.info, st.warning, etc ---------- */
+        /* ---------- ALERTAS / MENSAJES DE INFORMACIÓN ---------- */
         div[data-testid="stNotification"] {
             background: rgba(0, 240, 255, 0.06);
             border: 1px solid var(--neon-blue-border);
@@ -180,13 +203,14 @@ def inject_custom_css():
             backdrop-filter: blur(8px);
         }
 
-        /* ---------- SLIDERS ---------- */
+        /* ---------- BARRA DE DESLIZAMIENTO (SLIDERS) ---------- */
+        /* # Pinta los controles deslizantes numéricos del color neón principal */
         div[data-testid="stSlider"] > div > div > div > div {
             background-color: var(--neon-blue) !important;
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
         }
 
-        /* ---------- SCROLLBAR ---------- */
+        /* ---------- BARRA DE DESPLAZAMIENTO (SCROLLBAR) ---------- */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -201,7 +225,7 @@ def inject_custom_css():
             background: rgba(0, 240, 255, 0.6);
         }
 
-        /* ---------- SEPARADOR NEÓN ---------- */
+        /* ---------- LÍNEA SEPARADORA GLOW/NEÓN ---------- */
         hr {
             border: none;
             height: 1px;
@@ -209,7 +233,7 @@ def inject_custom_css():
             margin: 1.5rem 0;
         }
 
-        /* ---------- FOOTER / CRÉDITOS EN SIDEBAR ---------- */
+        /* ---------- CRÉDITOS AL FINAL DE LA BARRA LATERAL ---------- */
         .sidebar-footer {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -221,16 +245,22 @@ def inject_custom_css():
 
         </style>
         """
+    # # Llamamos a la función auxiliar para inyectar todo este estilo CSS a la pantalla
     _md_html(css)
 
 
-# 3. BARRA LATERAL (SIDEBAR)
-
+# ==========================================
+# 3. CONSTRUCCIÓN DE LA BARRA LATERAL (SIDEBAR)
+# ==========================================
 def render_sidebar():
-    """Construye la barra lateral: título, créditos y menú de navegación.
-    Retorna la opción de módulo seleccionada por el usuario."""
+    """
+    # Esta función dibuja todo lo que está en la barra izquierda:
+    # El título del proyecto, el menú con los 3 módulos y la lista de integrantes.
+    # Devuelve cuál módulo seleccionó el usuario para mostrarlo en pantalla.
+    """
 
     with st.sidebar:
+        # # Dibujamos el encabezado de la barra lateral usando HTML estilizado
         _md_html(
             """
             <div style="text-align:center; padding: 0.5rem 0 1.2rem 0;">
@@ -245,6 +275,7 @@ def render_sidebar():
 
         st.markdown("### 🧭 Navegación")
 
+        # # 'st.radio' crea los botones de selección múltiple para cambiar entre laboratorios
         menu_opcion = st.radio(
             label="Selecciona un módulo:",
             options=[
@@ -252,12 +283,12 @@ def render_sidebar():
                 "Módulo 2: Cinemática (Tiro Parabólico)",
                 "Módulo 3: Dinámica (Plano Inclinado)",
             ],
-            label_visibility="collapsed",
+            label_visibility="collapsed",  # # Ocultamos la etiqueta del menú porque ya pusimos un título arriba
         )
 
         _md_html("<hr>")
 
-        # ---------- CRÉDITOS ----------
+        # # Bloque que muestra la lista de los integrantes del equipo
         _md_html(
             """
             <div class="sidebar-footer">
@@ -276,13 +307,18 @@ def render_sidebar():
             """
         )
 
+    # # Retornamos la opción que eligió el usuario (ej. "Módulo 1: Vectores en 2D")
     return menu_opcion
 
 
+# ==========================================
 # 4. COMPONENTE REUTILIZABLE: TARJETA GLASSMORPHISM
+# ==========================================
 def glass_card(header: str, subtext: str = ""):
-    """Renderiza una cabecera tipo tarjeta glassmorphism para
-    encabezar cada módulo de forma consistente."""
+    """
+    # Esta función es un 'molde' para crear tarjetas tipo vidrio en cualquier parte del código.
+    # Recibe el título principal (header) y la descripción (subtext).
+    """
     _md_html(
         f"""
         <div class="glass-card">
@@ -293,8 +329,14 @@ def glass_card(header: str, subtext: str = ""):
     )
 
 
+# ==========================================
 # 6. MÓDULO 2: CINEMÁTICA (TIRO PARABÓLICO)
+# ==========================================
 def modulo_cinematica_tiro_parabolico():
+    """
+    # Pantalla temporal para el Módulo 2.
+    # Muestra un mensaje informando que se encuentra en desarrollo.
+    """
     glass_card(
         header="🚀 Módulo 2 — Cinemática: Tiro Parabólico",
         subtext="Análisis de trayectoria, alcance máximo y tiempo de vuelo.",
@@ -303,8 +345,14 @@ def modulo_cinematica_tiro_parabolico():
     st.info("🚧 Próximamente: simulación interactiva de tiro parabólico.")
 
 
+# ==========================================
 # 7. MÓDULO 3: DINÁMICA (PLANO INCLINADO)
+# ==========================================
 def modulo_dinamica_plano_inclinado():
+    """
+    # Pantalla temporal para el Módulo 3.
+    # Muestra un mensaje informando que se encuentra en desarrollo.
+    """
     glass_card(
         header="⚙️ Módulo 3 — Dinámica: Plano Inclinado",
         subtext="Fuerzas, fricción y aceleración de un cuerpo sobre un plano inclinado.",
@@ -313,11 +361,21 @@ def modulo_dinamica_plano_inclinado():
     st.info("🚧 Próximamente: simulación interactiva de plano inclinado.")
 
 
-# 8. FUNCIÓN PRINCIPAL (main)
+# ==========================================
+# 8. FUNCIÓN PRINCIPAL DE LA APLICACIÓN (main)
+# ==========================================
 def main():
+    """
+    # Es el motor principal del programa. Se ejecuta de arriba hacia abajo:
+    # 1. Aplica los colores y estilos neón.
+    # 2. Dibuja el título de la parte superior.
+    # 3. Carga la barra lateral y detecta el módulo seleccionado.
+    # 4. Carga en pantalla el laboratorio que el usuario quiere ver.
+    """
+    # # Aplica el CSS neón a toda la app
     inject_custom_css()
 
-    # ---------- ENCABEZADO PRINCIPAL ----------
+    # # Dibuja el título principal en el centro de la pantalla
     st.markdown("# ⚛️ Laboratorio Virtual de Física Mecánica")
     _md_html(
         """
@@ -329,16 +387,27 @@ def main():
         """
     )
 
-# ---------- SIDEBAR Y SELECCIÓN DE MÓDULO ----------
+    # # Renderiza la barra lateral y guarda la elección del usuario en la variable 'opcion'
     opcion = render_sidebar()
 
-    # ---------- ENRUTAMIENTO DE MÓDULOS ----------
+    # # EVALUACIÓN DE RUTAS: Según lo que seleccionó el usuario, ejecuta el módulo correspondiente
     if opcion == "Módulo 1: Vectores en 2D":
+        # # Llama al archivo 'modulo_vectores_2d.py' para mostrar la gráfica y los controles de vectores
         modulo_vectores_2d.modulo_vectores_2d()
+        
     elif opcion == "Módulo 2: Cinemática (Tiro Parabólico)":
+        # # Muestra la vista previa del Módulo 2
         modulo_cinematica_tiro_parabolico()
+        
     elif opcion == "Módulo 3: Dinámica (Plano Inclinado)":
+        # # Muestra la vista previa del Módulo 3
         modulo_dinamica_plano_inclinado()
 
+
+# ==========================================
+# PUNTO DE ENTRADA DEL ARCHIVO
+# ==========================================
+# # Esta línea le indica a Python que si ejecutamos este archivo directamente,
+# # debe arrancar llamando a la función 'main()'.
 if __name__ == "__main__":
     main()
