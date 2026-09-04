@@ -63,9 +63,7 @@ def _crear_flecha_vector(fig, origen, destino, color, nombre, ancho=4):
 
 
 def _componente_input(label: str, key_prefix: str, default: float, color: str):
-    """Renderiza un par slider + number_input SINCRONIZADOS bidireccionalmente
-    (mover el slider actualiza el number_input y viceversa), usando
-    st.session_state + callbacks on_change."""
+    """Renderiza un par slider + number_input SINCRONIZADOS bidireccionalmente."""
     slider_key = f"{key_prefix}_slider"
     num_key = f"{key_prefix}_num"
 
@@ -107,25 +105,25 @@ def _componente_input(label: str, key_prefix: str, default: float, color: str):
     return st.session_state[slider_key]
 
 
+# ============================================================
+# FUNCIONES MATEMÁTICAS AUXILIARES
+# ============================================================
 def _mag_ang(x: float, y: float):
-    """Magnitud y ángulo (en grados, 0-360°) de un vector (x, y) usando atan2."""
-    mag = math.hypot(x, y)
-    ang = math.degrees(math.atan2(y, x))
+    mag = math.hypot(x, y)                 # CÁLCULO: Magnitud |V| = √(x² + y²) usando el Teorema de Pitágoras
+    ang = math.degrees(math.atan2(y, x))   # CÁLCULO: Dirección θ = arctan(y/x) convertida de radianes a grados sexagesimales
     if ang < 0:
-        ang += 360
+        ang += 360                         # CÁLCULO: Ajuste de ángulo negativo -> θ = θ + 360° para mantener rango [0°, 360°)
     return mag, ang
 
 
 def _explicacion_cuadrante(rx: float, ry: float) -> str:
-    """Genera una frase didáctica indicando en qué cuadrante cae el vector,
-    según los signos de sus componentes."""
-    if rx >= 0 and ry >= 0:
+    if rx >= 0 and ry >= 0:                # CÁLCULO LOGICO: (+, +) -> Cuadrante I (0° a 90°)
         return "Como Rx ≥ 0 y Ry ≥ 0, el vector resultante cae en el <b>Cuadrante I</b> (0°–90°)."
-    elif rx < 0 and ry >= 0:
+    elif rx < 0 and ry >= 0:               # CÁLCULO LOGICO: (−, +) -> Cuadrante II (90° a 180°)
         return "Como Rx &lt; 0 y Ry ≥ 0, el vector resultante cae en el <b>Cuadrante II</b> (90°–180°)."
-    elif rx < 0 and ry < 0:
+    elif rx < 0 and ry < 0:                # CÁLCULO LOGICO: (−, −) -> Cuadrante III (180° a 270°)
         return "Como Rx &lt; 0 y Ry &lt; 0, el vector resultante cae en el <b>Cuadrante III</b> (180°–270°)."
-    else:
+    else:                                  # CÁLCULO LOGICO: (+, −) -> Cuadrante IV (270° a 360°)
         return "Como Rx ≥ 0 y Ry &lt; 0, el vector resultante cae en el <b>Cuadrante IV</b> (270°–360°)."
 
 
@@ -139,7 +137,7 @@ def modulo_vectores_2d():
     )
 
     # ------------------------------------------------------------
-    # 1. CONTROLES DE ENTRADA (sliders + number_input sincronizados)
+    # 1. CONTROLES DE ENTRADA
     # ------------------------------------------------------------
     _md_html(
         """
@@ -177,19 +175,19 @@ def modulo_vectores_2d():
         by = _componente_input("By", "by", 5.0, COLOR_B)
 
     # ------------------------------------------------------------
-    # 2. MOTOR DE CÁLCULO
+    # 2. MOTOR DE CÁLCULO VECTORIAL (CÁLCULOS QUE SE MUESTRAN EN PANTALLA)
     # ------------------------------------------------------------
-    mag_a, ang_a = _mag_ang(ax, ay)
-    mag_b, ang_b = _mag_ang(bx, by)
+    mag_a, ang_a = _mag_ang(ax, ay)  # CÁLCULO: |A| = √(Ax² + Ay²)  y  θ_A = arctan(Ay/Ax) -> Muestra Magnitud e Inclinación de A
+    mag_b, ang_b = _mag_ang(bx, by)  # CÁLCULO: |B| = √(Bx² + By²)  y  θ_B = arctan(By/Bx) -> Muestra Magnitud e Inclinación de B
 
-    sum_x, sum_y = ax + bx, ay + by
-    mag_sum, ang_sum = _mag_ang(sum_x, sum_y)
+    sum_x, sum_y = ax + bx, ay + by # CÁLCULO: Rx = Ax + Bx  |  Ry = Ay + By -> Componentes del Vector Suma (R = A + B)
+    mag_sum, ang_sum = _mag_ang(sum_x, sum_y)  # CÁLCULO: |R_suma| = √(Rx² + Ry²)  y  θ_suma = arctan(Ry/Rx) -> Magnitud y Ángulo de Suma
 
-    dif_x, dif_y = ax - bx, ay - by
-    mag_dif, ang_dif = _mag_ang(dif_x, dif_y)
+    dif_x, dif_y = ax - bx, ay - by            # CÁLCULO: Rx = Ax − Bx  |  Ry = Ay − By -> Componentes del Vector Resta (R = A − B)
+    mag_dif, ang_dif = _mag_ang(dif_x, dif_y)  # CÁLCULO: |R_resta| = √(Rx² + Ry²)  y  θ_resta = arctan(Ry/Rx) -> Magnitud y Ángulo de Resta
 
-    producto_escalar = ax * bx + ay * by
-    producto_cruz_z = ax * by - ay * bx
+    producto_escalar = ax * bx + ay * by       # CÁLCULO: A · B = (Ax * Bx) + (Ay * By) -> Producto Punto / Escalar
+    producto_cruz_z = ax * by - ay * bx        # CÁLCULO: (A × B)_z = (Ax * By) − (Ay * Bx) -> Producto Cruz / Determinante 
 
     # ------------------------------------------------------------
     # 3. SELECTOR DE RESULTANTE A GRAFICAR
@@ -206,11 +204,12 @@ def modulo_vectores_2d():
         res_x, res_y, res_mag, res_ang, nombre_res = dif_x, dif_y, mag_dif, ang_dif, "R = A − B"
 
     # ------------------------------------------------------------
-    # 4. GRÁFICO PLOTLY
+    # 4. GRÁFICO PLOTLY Y ESCALADO DINÁMICO INTERFAZ
     # ------------------------------------------------------------
     fig = go.Figure()
 
     limite = max(abs(ax), abs(ay), abs(bx), abs(by), abs(res_x), abs(res_y), 1) * 1.35
+# CÁLCULO: Límite = Máximo(|Ax|, |Ay|, |Bx|, |By|, |Rx|, |Ry|) * 1.35 -> Escala del marco gráfico
 
     fig.add_shape(type="line", x0=-limite, x1=limite, y0=0, y1=0,
                   line=dict(color="rgba(143,163,192,0.35)", width=1))
@@ -243,7 +242,7 @@ def modulo_vectores_2d():
     st.plotly_chart(fig, use_container_width=True)
 
     # ------------------------------------------------------------
-    # 5. RESULTADOS — VECTORES INDIVIDUALES A y B
+    # 5. RESULTADOS — VECTORES INDIVIDUALES A y B INTERFAZ
     # ------------------------------------------------------------
     _md_html(
         """
@@ -255,16 +254,16 @@ def modulo_vectores_2d():
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        _tarjeta_resultado("Magnitud |A|", f"{mag_a:.2f}", color=COLOR_A)
+        _tarjeta_resultado("Magnitud |A|", f"{mag_a:.2f}", color=COLOR_A)            # MOSTRAR CÁLCULO: Muestra mag_a en pantalla
     with c2:
-        _tarjeta_resultado("Ángulo θ_A", f"{ang_a:.2f}°", color=COLOR_A)
+        _tarjeta_resultado("Ángulo θ_A", f"{ang_a:.2f}°", color=COLOR_A)             # MOSTRAR CÁLCULO: Muestra ang_a en pantalla
     with c3:
-        _tarjeta_resultado("Magnitud |B|", f"{mag_b:.2f}", color=COLOR_B)
+        _tarjeta_resultado("Magnitud |B|", f"{mag_b:.2f}", color=COLOR_B)            # MOSTRAR CÁLCULO: Muestra mag_b en pantalla
     with c4:
-        _tarjeta_resultado("Ángulo θ_B", f"{ang_b:.2f}°", color=COLOR_B)
+        _tarjeta_resultado("Ángulo θ_B", f"{ang_b:.2f}°", color=COLOR_B)             # MOSTRAR CÁLCULO: Muestra ang_b en pantalla
 
     # ------------------------------------------------------------
-    # 6. RESULTADOS — SUMA Y RESTA
+    # 6. RESULTADOS — SUMA Y RESTA INTERFAZ
     # ------------------------------------------------------------
     _md_html(
         """
@@ -276,16 +275,16 @@ def modulo_vectores_2d():
 
     s1, s2, s3, s4 = st.columns(4)
     with s1:
-        _tarjeta_resultado("Suma → Rx, Ry", f"{sum_x:.2f}, {sum_y:.2f}", color=COLOR_R)
+        _tarjeta_resultado("Suma → Rx, Ry", f"{sum_x:.2f}, {sum_y:.2f}", color=COLOR_R)                 # MOSTRAR CÁLCULO: Muestra (sum_x, sum_y)
     with s2:
-        _tarjeta_resultado("Suma → |R|, θ", f"{mag_sum:.2f}  |  {ang_sum:.2f}°", color=COLOR_R)
+        _tarjeta_resultado("Suma → |R|, θ", f"{mag_sum:.2f}  |  {ang_sum:.2f}°", color=COLOR_R)         # MOSTRAR CÁLCULO: Muestra (|R_suma|, θ_suma)
     with s3:
-        _tarjeta_resultado("Resta → Rx, Ry", f"{dif_x:.2f}, {dif_y:.2f}", color=COLOR_R)
+        _tarjeta_resultado("Resta → Rx, Ry", f"{dif_x:.2f}, {dif_y:.2f}", color=COLOR_R)                # MOSTRAR CÁLCULO: Muestra (dif_x, dif_y)
     with s4:
-        _tarjeta_resultado("Resta → |R|, θ", f"{mag_dif:.2f}  |  {ang_dif:.2f}°", color=COLOR_R)
+        _tarjeta_resultado("Resta → |R|, θ", f"{mag_dif:.2f}  |  {ang_dif:.2f}°", color=COLOR_R)         # MOSTRAR CÁLCULO: Muestra (|R_resta|, θ_resta)
 
     # ------------------------------------------------------------
-    # 7. RESULTADOS — PRODUCTO ESCALAR Y PRODUCTO CRUZ
+    # 7. RESULTADOS — PRODUCTO ESCALAR Y PRODUCTO CRUZ INTERFAZ
     # ------------------------------------------------------------
     _md_html(
         """
@@ -297,15 +296,12 @@ def modulo_vectores_2d():
 
     p1, p2 = st.columns(2)
     with p1:
-        _tarjeta_resultado("A · B (escalar)", f"{producto_escalar:.2f}", color="#7B61FF")
+        _tarjeta_resultado("A · B (escalar)", f"{producto_escalar:.2f}", color="#7B61FF")   # MOSTRAR CÁLCULO: Muestra producto_escalar
     with p2:
-        _tarjeta_resultado("A × B (componente Z)", f"{producto_cruz_z:.2f}", color="#7B61FF")
+        _tarjeta_resultado("A × B (componente Z)", f"{producto_cruz_z:.2f}", color="#7B61FF") # MOSTRAR CÁLCULO: Muestra producto_cruz_z
 
-   # ------------------------------------------------------------
-    # 8. DESGLOSE DIDÁCTICO DEL ÁNGULO (desplegable)
     # ------------------------------------------------------------
-# ------------------------------------------------------------
-    # 8. DESGLOSE DIDÁCTICO PASO A PASO DE TODOS LOS CÁLCULOS
+    # 8. DESGLOSE DIDÁCTICO
     # ------------------------------------------------------------
     with st.expander("🧮 Ver explicación paso a paso de todos los resultados"):
         cuadrante_txt = _explicacion_cuadrante(res_x, res_y)
