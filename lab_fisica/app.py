@@ -6,8 +6,7 @@ import streamlit as st
 # ==========================================
 import modulo_vectores_2d
 import modulo_cinematica
-
-
+import modulo_dinamica
 # ==========================================
 # FUNCIÓN AUXILIAR PARA APLICAR ESTILOS VISUALES
 # ==========================================
@@ -335,7 +334,7 @@ def main():
         modulo_cinematica.modulo_cinematica()
         
     elif opcion == "Módulo 3: Dinámica (Plano Inclinado)":
-        modulo_dinamica_plano_inclinado()
+        modulo_dinamica.modulo_dinamica_plano_inclinado()
 
 
 if __name__ == "__main__":
