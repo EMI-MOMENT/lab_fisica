@@ -5,7 +5,6 @@ import plotly.graph_objects as go
 
 from utils import _md_html, glass_card
 
-
 # ============================================================
 # PALETA DE COLORES
 # ============================================================
