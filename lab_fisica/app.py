@@ -1,25 +1,25 @@
 import textwrap
 import streamlit as st
 
-# ==========================================
-# IMPORTACIÓN DE LOS MÓDULOS DEL PROYECTO
-# ==========================================
+
+# IMPORTACIONES DE LOS MÓDULOS DE SIMULACIÓN
 import modulo_vectores_2d
 import modulo_cinematica
 import modulo_dinamica
-# ==========================================
-# FUNCIÓN AUXILIAR PARA APLICAR ESTILOS VISUALES
-# ==========================================
+
+
+# UTILIDADES DE RENDERIZADO CSS/HTML
 def _md_html(html: str):
     """
-    'textwrap.dedent' quita esos espacios extra para que el diseño neón se aplique perfectamente.
+    Inyecta bloques de HTML/CSS en Streamlit.
+    Utiliza textwrap.dedent para limpiar indentaciones y evitar que Streamlit 
+    lo interprete como bloque de código preformateado.
     """
     st.markdown(textwrap.dedent(html).strip(), unsafe_allow_html=True)
 
 
-# ==========================================
-# 1. CONFIGURACIÓN GENERAL DE LA PÁGINA WEB
-# ==========================================
+#  CONFIGURACIÓN DEL VIEWPORT Y METADATOS
+
 st.set_page_config(
     page_title="Laboratorio Virtual de Física Mecánica",
     page_icon="⚛️",
@@ -28,20 +28,18 @@ st.set_page_config(
 )
 
 
-# ==========================================
-# 2. CSS PERSONALIZADO — TEMA OSCURO FUTURISTA / NEÓN
-# ==========================================
+# 2. SISTEMA DE DISEÑO BASE (CSS GLOBAL)
 def inject_custom_css():
     """
-    Inyecta las reglas de diseño visual (CSS) para transformar el aspecto predeterminado de Streamlit.
+    Define la paleta de colores global y los componentes de UI reutilizables
+    (glassmorphism, animaciones, tipografía personalizada y scrollbar).
     """
     css = """
         <style>
-
-        /* ---------- IMPORTAR TIPOGRAFÍA DESDE GOOGLE FONTS ---------- */
+        /* Importación de tipografías primarias */
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 
-        /* ---------- VARIABLES DE COLOR (PALETA DE COLORES) ---------- */
+        /* Variables base del tema */
         :root {
             --bg-primary: #0B0F19;
             --bg-secondary: #10182B;
@@ -52,14 +50,14 @@ def inject_custom_css():
             --text-secondary: #8FA3C0;
         }
 
-        /* ---------- FONDO GENERAL DE LA APLICACIÓN ---------- */
+        /* Contenedor principal */
         .stApp {
             background: radial-gradient(circle at 15% 0%, #101a30 0%, #0B0F19 45%, #05070c 100%);
             color: var(--text-primary);
             font-family: 'Rajdhani', sans-serif;
         }
 
-        /* ---------- ESTILO DE LOS TÍTULOS ---------- */
+        /* Estilización de encabezados */
         h1, h2, h3 {
             font-family: 'Orbitron', sans-serif;
             color: var(--text-primary);
@@ -77,7 +75,7 @@ def inject_custom_css():
             font-family: 'Rajdhani', sans-serif;
         }
 
-        /* ---------- ESTILO DE LA BARRA LATERAL (SIDEBAR) ---------- */
+        /* Panel de navegación (Sidebar) */
         section[data-testid="stSidebar"] {
             background: linear-gradient(180deg, #0D1220 0%, #080B14 100%);
             border-right: 1px solid var(--neon-blue-border);
@@ -90,7 +88,7 @@ def inject_custom_css():
             color: var(--neon-blue);
         }
 
-        /* ---------- CAJAS CON EFECTO DE CRISTAL (GLASSMORPHISM) ---------- */
+        /* Componente UI: Glass Card (Tarjetas informativas) */
         .glass-card {
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(12px);
@@ -124,7 +122,7 @@ def inject_custom_css():
             font-size: 0.95rem;
         }
 
-        /* ---------- BOTONES INTERACTIVOS ---------- */
+        /* Componente UI: Botones primarios */
         .stButton > button {
             background: linear-gradient(90deg, rgba(0,240,255,0.12), rgba(123,97,255,0.12));
             color: var(--neon-blue);
@@ -144,7 +142,7 @@ def inject_custom_css():
             transform: scale(1.02);
         }
 
-        /* ---------- OPCIONES DE MENÚ DE NAVEGACIÓN ---------- */
+        /* Componente UI: Menú de selección (Radio buttons) */
         div[role="radiogroup"] > label {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(0, 240, 255, 0.15);
@@ -161,7 +159,7 @@ def inject_custom_css():
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
         }
 
-        /* ---------- PESTAÑAS (TABS) ---------- */
+        /* Componentes de estado activo (Tabs) */
         button[data-baseweb="tab"] {
             font-family: 'Orbitron', sans-serif;
             color: var(--text-secondary);
@@ -177,7 +175,7 @@ def inject_custom_css():
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
         }
 
-        /* ---------- ALERTAS / MENSAJES DE INFORMACIÓN ---------- */
+        /* Avisos e info boxes */
         div[data-testid="stNotification"] {
             background: rgba(0, 240, 255, 0.06);
             border: 1px solid var(--neon-blue-border);
@@ -185,28 +183,19 @@ def inject_custom_css():
             backdrop-filter: blur(8px);
         }
 
-        /* ---------- BARRA DE DESLIZAMIENTO (SLIDERS) ---------- */
+        /* Estilización de Inputs Deslizantes */
         div[data-testid="stSlider"] > div > div > div > div {
             background-color: var(--neon-blue) !important;
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
         }
 
-        /* ---------- BARRA DE DESPLAZAMIENTO (SCROLLBAR) ---------- */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0B0F19;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 240, 255, 0.35);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 240, 255, 0.6);
-        }
+        /* Personalización de la barra de desplazamiento global */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #0B0F19; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.35); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 240, 255, 0.6); }
 
-        /* ---------- LÍNEA SEPARADORA GLOW/NEÓN ---------- */
+        /* Separadores (hr) */
         hr {
             border: none;
             height: 1px;
@@ -214,7 +203,7 @@ def inject_custom_css():
             margin: 1.5rem 0;
         }
 
-        /* ---------- CRÉDITOS AL FINAL DE LA BARRA LATERAL ---------- */
+        /* Footer del panel lateral */
         .sidebar-footer {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -223,17 +212,19 @@ def inject_custom_css():
             padding-top: 1rem;
             border-top: 1px solid rgba(0, 240, 255, 0.15);
         }
-
         </style>
         """
     _md_html(css)
 
-
-# ==========================================
-# 3. CONSTRUCCIÓN DE LA BARRA LATERAL (SIDEBAR)
+#  CONSTRUCCIÓN DEL PANEL LATERAL (NAV)
 # ==========================================
 def render_sidebar():
+    """
+    Estructura la navegación principal.
+    Maneja el selector de estado global que dicta qué módulo se renderiza en el área principal.
+    """
     with st.sidebar:
+        # Header del laboratorio
         _md_html(
             """
             <div style="text-align:center; padding: 0.5rem 0 1.2rem 0;">
@@ -248,6 +239,7 @@ def render_sidebar():
 
         st.markdown("### 🧭 Navegación")
 
+        # Control de enrutamiento
         menu_opcion = st.radio(
             label="Selecciona un módulo:",
             options=[
@@ -260,6 +252,7 @@ def render_sidebar():
 
         _md_html("<hr>")
 
+        # Créditos de desarrollo
         _md_html(
             """
             <div class="sidebar-footer">
@@ -281,36 +274,14 @@ def render_sidebar():
     return menu_opcion
 
 
-# ==========================================
-# 4. COMPONENTE REUTILIZABLE: TARJETA GLASSMORPHISM
-# ==========================================
-def glass_card(header: str, subtext: str = ""):
-    _md_html(
-        f"""
-        <div class="glass-card">
-            <div class="glass-header">{header}</div>
-            <div class="glass-subtext">{subtext}</div>
-        </div>
-        """
-    )
-
-
-# ==========================================
-# 7. MÓDULO 3: DINÁMICA (PLANO INCLINADO)
-# ==========================================
-def modulo_dinamica_plano_inclinado():
-    glass_card(
-        header="⚙️ Módulo 3 — Dinámica: Plano Inclinado",
-        subtext="Fuerzas, fricción y aceleración de un cuerpo sobre un plano inclinado.",
-    )
-
-    st.info("🚧 Próximamente: simulación interactiva de plano inclinado.")
-
-
-# ==========================================
-# 8. FUNCIÓN PRINCIPAL DE LA APLICACIÓN (main)
-# ==========================================
+#ENTRYPOINT DE LA APLICACIÓN
 def main():
+    """
+    Función orquestadora principal. 
+    1. Carga CSS base.
+    2. Renderiza el layout estructural.
+    3. Mapea la selección del sidebar a la función del módulo correspondiente.
+    """
     inject_custom_css()
 
     st.markdown("# ⚛️ Laboratorio Virtual de Física Mecánica")
@@ -324,18 +295,18 @@ def main():
         """
     )
 
+    # Captura del estado del menú
     opcion = render_sidebar()
 
+    # Enrutador
     if opcion == "Módulo 1: Vectores en 2D":
         modulo_vectores_2d.modulo_vectores_2d()
         
     elif opcion == "Módulo 2: Cinemática (Tiro Parabólico)":
-        # Se ejecuta la simulación interactiva real del Módulo 2
         modulo_cinematica.modulo_cinematica()
         
     elif opcion == "Módulo 3: Dinámica (Plano Inclinado)":
         modulo_dinamica.modulo_dinamica_plano_inclinado()
-
 
 if __name__ == "__main__":
     main()
